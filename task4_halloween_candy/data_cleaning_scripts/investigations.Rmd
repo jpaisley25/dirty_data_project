@@ -13,9 +13,9 @@ library(readxl)
 
 
 ```{r}
-candy_2015 <- read_excel(here::here("task4_halloween_candy/raw_data/boing-boing-candy-2015.xlsx"))
-candy_2016 <- read_excel(here::here("task4_halloween_candy/raw_data/boing-boing-candy-2016.xlsx"))
-candy_2017 <- read_excel(here::here("task4_halloween_candy/raw_data/boing-boing-candy-2017.xlsx"))
+candy_2015 <- read_excel(here::here("raw_data/boing-boing-candy-2015.xlsx"))
+candy_2016 <- read_excel(here::here("raw_data/boing-boing-candy-2016.xlsx"))
+candy_2017 <- read_excel(here::here("raw_data/boing-boing-candy-2017.xlsx"))
 
 
 
@@ -129,7 +129,13 @@ bind_rows(candy_2015_piv, candy_2016_piv, candy_2017_piv) %>%
   count(format(round(as.numeric(age)), scientific = FALSE))
 
 bind_rows(candy_2015_piv, candy_2016_piv, candy_2017_piv) %>% 
-  distinct(age)
+  mutate(age = round(as.numeric(age)),
+         age = case_when(age < 101 & age > 5 ~ age,
+                         TRUE ~ 0),
+         age = na_if(age, 0)) %>% 
+  count(age)
+        
+
 
 ```
 
@@ -255,8 +261,7 @@ bind_rows(candy_2015_piv, candy_2016_piv, candy_2017_piv) %>%
              TRUE ~ "unknown"
            ),
          country = na_if(country, "unknown")
-  ) %>% 
-  count(country)
+  ) 
 
 
 
@@ -264,4 +269,49 @@ bind_rows(candy_2015_piv, candy_2016_piv, candy_2017_piv) %>%
 
 
 ```
+
+
+
+```{r}
+bind_rows(candy_2015_piv, candy_2016_piv, candy_2017_piv) %>%
+  mutate(
+    country = tolower(country),
+    country =
+      case_when(
+        country %in% usa_group ~ "usa",
+        country %in% uk_group ~ "uk",
+        country %in% spain_group ~ "spain",
+        country %in% south_korea_group ~ "south korea",
+        country %in% netherlands_group ~ "netherlands",
+        country %in% canada_group ~ "canada",
+        country %in% other_valid_countries ~ country,
+        TRUE ~ "unknown"
+      ),
+    country = na_if(country, "unknown")
+  ) %>%  
+  mutate(age = case_when(
+    str_detect(age, "[^0-9\\.]") ~ "0",
+    TRUE ~ age
+  ),
+  age = round(as.numeric(age)),
+  age = case_when(age < 101 & age > 5 ~ age,
+                         TRUE ~ 0),
+  age = na_if(age, 0)
+  ) %>% 
+  count(age)
+ 
+
+
+```
+
+
+
+
+```{r}
+candy_2015 %>% 
+  select(`How old are you?`, `Please list any items not included above that give you JOY.`, `Please list any items not included above that give you DESPAIR.` )
+```
+
+
+
 

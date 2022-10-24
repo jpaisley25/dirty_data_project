@@ -1,0 +1,159 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+#load data
+
+```{r}
+candy_data <- read_csv(here::here("clean_data/candys_data_clean.csv"))
+```
+```{r}
+
+#number of rating (not incluing nas)
+
+candy_data %>% 
+  drop_na(rating) %>% 
+  summarise(n = n())
+
+
+```
+
+#average age of people who are going trick or treating
+
+```{r}
+
+#dropping nas
+candy_data %>% 
+  drop_na(age) %>% 
+  filter(going_out == "Yes") %>% 
+  summarise(avg_age = mean(age))
+
+#imputing with mean
+candy_data %>% 
+  mutate(age = coalesce(age, mean(age, na.rm = TRUE))) %>% 
+  filter(going_out == "Yes") %>% 
+  summarise(avg_age = mean(age))
+
+#imputing with median
+candy_data %>% 
+  mutate(age = coalesce(age, median(age, na.rm = TRUE))) %>% 
+  filter(going_out == "Yes") %>% 
+  summarise(avg_age = mean(age))
+
+```
+
+#average age of people who are not going trick or treating
+
+```{r}
+
+#dropping nas
+candy_data %>% 
+  drop_na(age) %>% 
+  filter(going_out == "No") %>% 
+  summarise(avg_age = mean(age))
+
+#imputing with mean
+candy_data %>% 
+  mutate(age = coalesce(age, mean(age, na.rm = TRUE))) %>% 
+  filter(going_out == "No") %>% 
+  summarise(avg_age = mean(age))
+
+#imputing with median
+candy_data %>% 
+  mutate(age = coalesce(age, median(age, na.rm = TRUE))) %>% 
+  filter(going_out == "No") %>% 
+  summarise(avg_age = mean(age))
+
+```
+
+
+#For each of joy, despair and meh, which candy bar received the most of these ratings?
+
+```{r}
+candy_data %>% 
+  filter(rating == "JOY") %>% 
+  group_by(candy) %>% 
+  summarise(number_joy = n()) %>% 
+  slice_max(number_joy, n = 3)
+
+candy_data %>% 
+  filter(rating == "DESPAIR") %>% 
+  group_by(candy) %>% 
+  summarise(number_despair = n()) %>% 
+  slice_max(number_despair, n = 3)
+
+candy_data %>% 
+  filter(rating == "MEH") %>% 
+  group_by(candy) %>% 
+  summarise(number_meh = n()) %>% 
+  slice_max(number_meh, n = 3)
+```
+#How many people rated Starburst as despair?
+
+
+```{r}
+candy_data %>% 
+  filter(candy == "starburst" & rating == "DESPAIR") %>% 
+  summarise(starburst_despair = n())
+```
+
+
+##For the next three questions, count despair as -1, joy as +1, and meh as 0.
+
+#What was the most popular candy bar by this rating system for each gender in the dataset ?
+
+```{r}
+candy_data %>%
+  drop_na(rating) %>%
+  mutate(rating_points = case_when(rating == "JOY" ~ 1,
+                                   rating == "MEH" ~ 0,
+                                   TRUE ~ -1)) %>% 
+  group_by(candy) %>% 
+  summarise(score = sum(rating_points)) %>% 
+  slice_max(score, n = 3)
+```
+
+
+#What was the most popular candy bar in each year?
+
+```{r}
+candy_data %>%
+  drop_na(rating) %>%
+  mutate(rating_points = case_when(rating == "JOY" ~ 1,
+                                   rating == "MEH" ~ 0,
+                                   TRUE ~ -1)) %>% 
+  group_by(candy, year) %>% 
+  summarise(score = sum(rating_points)) %>% 
+  ungroup() %>% 
+  group_by(year) %>% 
+  slice_max(score, n = 3)
+```
+
+
+#What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries?
+
+```{r}
+candy_data %>%
+  drop_na(rating, country) %>%
+  mutate(
+    rating_points = case_when(rating == "JOY" ~ 1,
+                              rating == "MEH" ~ 0,
+                              TRUE ~ -1),
+    country = case_when(country == "usa" |
+                        country == "uk" |
+                        country == "canada" ~ country,
+                        TRUE ~ "other country")
+  ) %>% 
+  group_by(country, candy) %>% 
+  summarise(score = sum(rating_points)) %>% 
+  slice_max(score, n = 1)
+
+```
+
+
+

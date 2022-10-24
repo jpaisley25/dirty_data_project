@@ -75,8 +75,8 @@ candy_2017_piv <- candy_2017 %>%
                names_to = "candy",
                values_to = "rating") 
 
-#country groups - all entries in the counrty column that can be resonably 
-# be interparted to be refering to the same country have been grouped
+#country groups - all entries in the country column that can be reasonably 
+# be interpreted to be referring to the same country have been grouped
 
 usa_group <- c("usa", "us", "united states of america", "united states", 
                "ussa", "u.s.a.", "murica", "usa!", 

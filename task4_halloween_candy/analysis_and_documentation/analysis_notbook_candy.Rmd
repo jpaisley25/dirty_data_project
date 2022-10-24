@@ -31,19 +31,39 @@ candy_data %>%
 candy_data %>% 
   drop_na(age) %>% 
   filter(going_out == "Yes") %>% 
-  summarise(avg_age = mean(age))
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
 
 #imputing with mean
+mean_age_overall <- candy_data %>% 
+  drop_na(age) %>% 
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age)) %>% 
+  pull(avg_age)  
+  
 candy_data %>% 
-  mutate(age = coalesce(age, mean(age, na.rm = TRUE))) %>% 
+  mutate(age = coalesce(age, mean_age_overall)) %>% 
   filter(going_out == "Yes") %>% 
-  summarise(avg_age = mean(age))
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
 
 #imputing with median
+median_age_overall <- candy_data %>%
+  drop_na(age) %>% 
+  group_by(id) %>%
+  summarise(med_age = median(age)) %>% 
+  summarise(med_age = median(med_age)) %>% 
+  pull(med_age)
+
 candy_data %>% 
-  mutate(age = coalesce(age, median(age, na.rm = TRUE))) %>% 
+  mutate(age = coalesce(age, median_age_overall)) %>% 
   filter(going_out == "Yes") %>% 
-  summarise(avg_age = mean(age))
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
 
 ```
 
@@ -55,19 +75,30 @@ candy_data %>%
 candy_data %>% 
   drop_na(age) %>% 
   filter(going_out == "No") %>% 
-  summarise(avg_age = mean(age))
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
 
 #imputing with mean
+  
 candy_data %>% 
-  mutate(age = coalesce(age, mean(age, na.rm = TRUE))) %>% 
+  mutate(age = coalesce(age, mean_age_overall)) %>% 
   filter(going_out == "No") %>% 
-  summarise(avg_age = mean(age))
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
 
 #imputing with median
+
 candy_data %>% 
-  mutate(age = coalesce(age, median(age, na.rm = TRUE))) %>% 
+  mutate(age = coalesce(age, median_age_overall)) %>% 
   filter(going_out == "No") %>% 
-  summarise(avg_age = mean(age))
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
+
+
+  
 
 ```
 

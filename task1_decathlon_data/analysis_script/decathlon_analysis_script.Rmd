@@ -3,21 +3,23 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+
 ```{r}
 library(tidyverse)
 library(stringr)
 library(janitor) 
 ```
 
-#read in clean data
+# read in clean data
 
 ```{r}
-clean_decathlon_results <- read_csv(here::here("task1_decathlon_data/clean_data/decatlon_clean_data.csv"))
+clean_decathlon_results <- read_csv(here::here("clean_data/decatlon_clean_data.csv"))
 ```
 
-#Who had the longest long jump seen in the data?
+# Who had the longest long jump seen in the data?
 
 ```{r}
+#
 clean_decathlon_results %>%
   select(name, event, event_performance) %>% 
   filter(event == "long_jump") %>% 
@@ -28,9 +30,10 @@ clean_decathlon_results %>%
 
 ```
 
-#What was the average 100m time in each competition?
+# What was the average 100m time in each competition?
 
 ```{r}
+#
 clean_decathlon_results %>%
   select(competition, event, event_performance) %>% 
   filter(event == "100m") %>% 
@@ -39,7 +42,7 @@ clean_decathlon_results %>%
 
 ```
 
-#Who had the highest total points across both competitions?
+# Who had the highest total points across both competitions?
 
 ```{r}
 # highest total across both competition - assuming that means sum if a competitor competed at both
@@ -47,7 +50,7 @@ clean_decathlon_results %>%
 clean_decathlon_results %>%
   select(name, competition, points) %>% 
   group_by(name, competition) %>% 
-  summarise(points = max(points)) %>% 
+  summarise(points = max(points)) %>%
   summarise(points = sum(points)) %>% 
   slice_max(points)
  
@@ -57,6 +60,7 @@ clean_decathlon_results %>%
 # What was the shot-put scores for the top three competitors in each competition?
 
 ```{r}
+#
 clean_decathlon_results %>% 
   filter(event == "shot_put") %>% 
   group_by(competition) %>% 
@@ -68,6 +72,7 @@ clean_decathlon_results %>%
 # What was the average points for competitors who ran the 400m in less than 50 seconds vs. those than ran 400m in more than 50 seconds?
 
 ```{r}
+#
 clean_decathlon_results %>% 
   select(points, event, event_performance) %>% 
   filter(event == "400m") %>% 

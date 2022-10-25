@@ -1,0 +1,93 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+read clean data
+
+```{r}
+rwa_data_clean <- read_csv(here::here("clean_data/clean_data_rwa.csv"))
+```
+
+What’s the average RWA score for each gender?
+
+```{r}
+rwa_data_clean %>% 
+  group_by(gender) %>% 
+  summarise(avg_rwa_score = mean(rwa_score))
+```
+
+
+What’s the average RWA score for left handed people vs. right handed people
+
+```{r}
+rwa_data_clean %>% 
+  filter(handedness == "left" | handedness == "right") %>% 
+  group_by(handedness) %>% 
+  summarise(avg_rwa_score = mean(rwa_score))
+```
+
+
+What’s the average family size for each type of childhood?
+
+```{r}
+rwa_data_clean %>% 
+  group_by(childhood_area) %>% 
+  summarise(avg_family_size = mean(familysize))
+```
+
+
+What’s the average time to take the test for each education level?
+
+```{r}
+test_time_ed_level <- rwa_data_clean %>% 
+  group_by(education_level) %>% 
+  summarise(avg_test_duration = mean(test_duration_s))
+test_time_ed_level
+```
+
+
+Create a plot of results of question 4.
+
+```{r}
+counts <- test_time_ed_level %>% 
+  pull(avg_test_duration)
+names <- test_time_ed_level %>% 
+  pull(education_level)
+
+barplot(counts,names.arg = names, ylim = (c(0, 600)), cex.names = 0.75, ylab = "duration", main = "Duration of Test vs Education Level")
+
+?barplot
+```
+
+
+What’s the average RWA score for people aged
+Under 18
+18 to 25
+26 to 40
+41 to 60
+
+```{r}
+rwa_data_clean %>% 
+  mutate(age_range = case_when(
+    age < 18 ~ "Under 18",
+    age < 26 ~ "18 to 25",
+    age < 41 ~ "26 to 40",
+    age < 61 ~ "41 to 60",
+    TRUE ~ "Old"
+  )) %>% 
+  filter(age_range != "Old") %>% 
+  group_by(age_range) %>% 
+  summarise(avg_score = mean(rwa_score))
+```
+
+```{r}
+rwa_data_clean %>% 
+  arrange(desc(rwa_score))
+```
+

@@ -1,0 +1,394 @@
+---
+title: "Candies Task"
+output: 
+  html_notebook:
+    number_sections: yes
+
+---
+
+# Cleaning
+
+
+## Looking at raw data
+
+I looked through each of the data sets below noting the important columns, differences between the data sets and things I need to clean.
+
+* column names to be made the same
+* data needs to be pivoted to allow a join
+* need to add a unique id for each person for grouping when answering future questions
+* timestamp can be replaced with straight up year column
+
+
+```{r}
+candy_2015 <- read_excel(here::here("raw_data/boing-boing-candy-2015.xlsx"))
+head(candy_2015)
+
+candy_2016 <- read_excel(here::here("raw_data/boing-boing-candy-2016.xlsx"))
+head(candy_2016)
+
+candy_2017 <- read_excel(here::here("raw_data/boing-boing-candy-2017.xlsx"))
+head(candy_2017)
+```
+
+## Pre bind cleaning
+
+The below code shows:
+
+* selection of important columns
+* creation of year and id 
+* also for 2015 country and gender columns needed to be created as they weren't present in the original data
+* columns are renamed to be consistent with other tables
+* columns are reordered
+* table is pivoted put all the candy bar columns in to one long **candy** column and their ratings into a **rating** column
+* candy column mutated to remove brackets at beginning and end
+
+A similar process was followed for the 2016 and 2017 data
+  
+```{r}
+candy_2015_piv <- candy_2015 %>%
+  select(c(2:96)) %>%
+  mutate(
+    year = 2015,
+    id = c(paste0(1:(nrow(
+      candy_2015
+    )), "_", 2015)),
+    country = as.character(NA),
+    gender = as.character(NA)
+  ) %>%
+  rename(
+    age = "How old are you?",
+    going_out = "Are you going actually going trick or treating yourself?",
+    "[JoyJoy (Mit Iodine!)]" = "[JoyJoy (Mit Iodine)]"
+  ) %>%
+  select(id, year, going_out, gender, age, country, c(3:95)) %>%
+  rename_all( ~ str_to_lower(.)) %>%
+  pivot_longer(
+    cols = c("[butterfinger]":"[york peppermint patties]"),
+    names_to = "candy",
+    values_to = "rating"
+  ) %>%
+  mutate(candy = str_sub(candy, 2, -2))
+```
+
+
+Output of the above code gives a really long table with 8 columns. Column names and number are consistent now across all three tables. 
+
+
+```{r echo=TRUE}
+
+
+head(candy_2015_piv)
+
+```
+
+
+```{r include=FALSE}
+# hidden
+
+candy_2016_piv <- candy_2016 %>%
+  select(c(2:106)) %>%
+  mutate(year = 2016,
+         id = c(paste0(1:(nrow(
+           candy_2016
+         )), "_", 2016))) %>%
+  select(id, year, c(1:4, 6:105)) %>%
+  rename(
+    going_out = "Are you going actually going trick or treating yourself?",
+    gender = "Your gender:",
+    age = "How old are you?",
+    country = "Which country do you live in?",
+    "[box’o’ raisins]" = "[Box'o'Raisins]"
+  ) %>%
+  rename_all( ~ str_to_lower(.)) %>%
+  pivot_longer(
+    cols = c("[100 grand bar]":"[york peppermint patties]"),
+    names_to = "candy",
+    values_to = "rating"
+  ) %>%
+  mutate(candy = str_sub(candy, 2, -2)) 
+
+
+candy_2017_piv <- candy_2017 %>%
+  select(c(2:109)) %>%
+  mutate(year = 2017,
+         id = c(paste0(1:(nrow(
+           candy_2017
+         )), "_", 2017))) %>%
+  select(id, year, c(1:4, 6:108)) %>%
+  rename_all( ~ str_replace(., "^Q[0-9]: ", "")) %>%
+  rename_all( ~ str_to_lower(.)) %>%
+  rename(
+    "q6 | anonymous brown globs that come in black and orange wrappers" =
+      "q6 | anonymous brown globs that come in black and orange wrappers	(a.k.a. mary janes)",
+    "q6 | box’o’ raisins" = "q6 | box'o'raisins"
+  )   %>%
+  pivot_longer(
+    cols = c("q6 | 100 grand bar":"q6 | york peppermint patties"),
+    names_to = "candy",
+    values_to = "rating"
+  ) %>%
+  mutate(candy = str_sub(candy, 6)) %>%
+  clean_names()
+
+
+```
+
+
+## Bind and post bind cleaning 
+
+* Using bind_rows the three tables were bound together.
+* I then investigate the distinct values in the country.
+* I grouped the distinct values into the below groups. 
+* Any entry that reasonably be assumed to be reffering to a specific country was added to the group for that country i.e. Usa! Usa! Usa! assumed to be usa. 
+* Countries that ony had one unique entry could be grouped together.
+* All other entries assumed invalid and were set to NA
+* Age column mutated to remove invalid entries.
+* Invalid entries were taken as entries that were numeric characters (numbers with and without decimal points were included).
+* Invalid entries set to 0.
+* Type chnaged to numeric.
+* Valid age range assumed to be  5 < age < 101, anything outside of this range set 0.
+* All 0's set to NA
+
+```{r}
+candy_all_years <-
+  bind_rows(candy_2015_piv, candy_2016_piv, candy_2017_piv) %>%
+  mutate(
+    country = tolower(country),
+    country =
+      case_when(
+        country %in% usa_group ~ "usa",
+        country %in% uk_group ~ "uk",
+        country %in% spain_group ~ "spain",
+        country %in% south_korea_group ~ "south korea",
+        country %in% netherlands_group ~ "netherlands",
+        country %in% canada_group ~ "canada",
+        country %in% other_valid_countries ~ country,
+        TRUE ~ "unknown"
+      ),
+    country = na_if(country, "unknown")
+  ) %>%
+  mutate(
+    age = case_when(str_detect(age, "[^0-9\\.]") ~ "0",
+                    TRUE ~ age),
+    age = round(as.numeric(age)),
+    age = case_when(age < 101 & age > 5 ~ age,
+                    TRUE ~ 0),
+    age = na_if(age, 0)
+  )
+
+```
+
+## Write to csv
+
+* New cleaned data written to csv file.
+
+
+# Analysing Data
+
+## Read in clean data
+
+* clean data read into analysis notebook
+
+## Answer question
+
+Q1. What is the total number of candy ratings given across the three years. (Number of candy ratings, not the number of raters. Don’t count missing values)
+
+* There is a ratings column that contains all of the ratings made across all three year. 
+* I just counted the number of rows.
+* First I dropped NAs on rating so that the missing values were excluded.
+
+
+```{r echo=TRUE}
+candy_data %>% 
+  drop_na(rating) %>% 
+  summarise(n = n())
+```
+
+Q2. What was the average age of people who are going out trick or treating?
+
+*  I used 3 different methods to solve this: droping NAs on age, imputing with mean and imputing with median.
+* It is important to group by id here as the origninal columns had different numbers of question meaning after the pivot each persons age appears in a different number of rows. Grouping by id collapses this back down so that each persons age appears once, therefore not skewing the averages. 
+
+```{r echo=TRUE}
+#dropping nas
+candy_data %>% 
+  drop_na(age) %>% 
+  filter(going_out == "Yes") %>% 
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
+
+#imputing with mean
+mean_age_overall <- candy_data %>% 
+  drop_na(age) %>% 
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age)) %>% 
+  pull(avg_age)  
+  
+candy_data %>% 
+  mutate(age = coalesce(age, mean_age_overall)) %>% 
+  filter(going_out == "Yes") %>% 
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
+
+#imputing with median
+median_age_overall <- candy_data %>%
+  drop_na(age) %>% 
+  group_by(id) %>%
+  summarise(med_age = median(age)) %>% 
+  summarise(med_age = median(med_age)) %>% 
+  pull(med_age)
+
+candy_data %>% 
+  mutate(age = coalesce(age, median_age_overall)) %>% 
+  filter(going_out == "Yes") %>% 
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
+```
+
+
+Q2. What was the average age of people who are not going out trick or treating?
+
+* Same as above but for people not going out. 
+
+```{r echo=FALSE}
+
+#dropping nas
+candy_data %>% 
+  drop_na(age) %>% 
+  filter(going_out == "No") %>% 
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
+
+#imputing with mean
+  
+candy_data %>% 
+  mutate(age = coalesce(age, mean_age_overall)) %>% 
+  filter(going_out == "No") %>% 
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
+
+#imputing with median
+
+candy_data %>% 
+  mutate(age = coalesce(age, median_age_overall)) %>% 
+  filter(going_out == "No") %>% 
+  group_by(id) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  summarise(avg_age = mean(avg_age))
+
+
+  
+
+```
+
+
+Q4. For each of joy, despair and meh, which candy bar received the most of these ratings?
+
+* Filter by the rating 
+* group by candy
+* count the total number of the ratings for each rating
+* slice of the top 3 for each rating
+
+```{r echo=TRUE}
+candy_data %>% 
+  filter(rating == "JOY") %>% 
+  group_by(candy) %>% 
+  summarise(number_joy = n()) %>% 
+  slice_max(number_joy, n = 3)
+
+candy_data %>% 
+  filter(rating == "DESPAIR") %>% 
+  group_by(candy) %>% 
+  summarise(number_despair = n()) %>% 
+  slice_max(number_despair, n = 3)
+
+candy_data %>% 
+  filter(rating == "MEH") %>% 
+  group_by(candy) %>% 
+  summarise(number_meh = n()) %>% 
+  slice_max(number_meh, n = 3)
+```
+
+Q5. How many people rated Starburst as despair?
+
+* filter for starburst candy were the rating is despair
+* count the number 
+
+```{r echo=TRUE}
+candy_data %>% 
+  filter(candy == "starburst" & rating == "DESPAIR") %>% 
+  summarise(starburst_despair = n())
+```
+
+
+**For the next three questions, count despair as -1, joy as +1, and meh as 0.**
+
+6. What was the most popular candy bar by this rating system for each gender in the dataset?
+
+* drop the na ratings
+* create a new column with the points system
+* group by candy
+* the summaries sums the points for each candy and returns the total
+* slice off the top three and show
+
+```{r echo=TRUE}
+candy_data %>%
+  drop_na(rating) %>%
+  mutate(rating_points = case_when(rating == "JOY" ~ 1,
+                                   rating == "MEH" ~ 0,
+                                   TRUE ~ -1)) %>% 
+  group_by(candy) %>% 
+  summarise(score = sum(rating_points)) %>% 
+  slice_max(score, n = 3)
+```
+
+
+Q7. What was the most popular candy bar in each year?
+
+* same as before
+* group by year then candy
+* summaries gives an entry for each candy bar for all three years individually.
+* slice the top three from each year
+
+```{r}
+candy_data %>%
+  drop_na(rating) %>%
+  mutate(rating_points = case_when(rating == "JOY" ~ 1,
+                                   rating == "MEH" ~ 0,
+                                   TRUE ~ -1)) %>% 
+  group_by(year, candy) %>% 
+  summarise(score = sum(rating_points)) %>% 
+  slice_max(score, n = 3)
+```
+
+Q8. What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries?
+
+* Same as before but drop NAs on country as well as th NAs could be US, UK or Canda get put them into the other countries group.
+* Mutate country column so that if country isn't usa, uk or canada the value is changed to **other country**.
+* grouped by country and candy and summed as before.
+* Sliced off top candy in each country
+
+
+```{r}
+candy_data %>%
+  drop_na(rating, country) %>%
+  mutate(
+    rating_points = case_when(rating == "JOY" ~ 1,
+                              rating == "MEH" ~ 0,
+                              TRUE ~ -1),
+    country = case_when(country == "usa" |
+                        country == "uk" |
+                        country == "canada" ~ country,
+                        TRUE ~ "other country")
+  ) %>% 
+  group_by(country, candy) %>% 
+  summarise(score = sum(rating_points)) %>% 
+  slice_max(score, n = 1)
+```
+

@@ -26,54 +26,75 @@ candy_2017 <- read_excel(here::here("raw_data/boing-boing-candy-2017.xlsx"))
 
 
 # candy 2015
-candy_2015_piv <- candy_2015 %>% 
-  select(c(2:96)) %>% 
-  clean_names() %>%
-  mutate(year = 2015, 
-         id = c(paste0(1:(nrow(candy_2015)), "_", 2015)),
-         country = as.character(NA),
-         gender = as.character(NA)) %>% 
-  rename(age = "how_old_are_you",
-         going_out = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
-  select(id, year, going_out, gender, age, country, c(3:95)) %>% 
-  rename_all(~ str_to_lower(.)) %>%
-  pivot_longer(cols = c("butterfinger":"york_peppermint_patties"),
-               names_to = "candy",
-               values_to = "rating") 
+candy_2015_piv <- candy_2015 %>%
+  select(c(2:96)) %>%
+  mutate(
+    year = 2015,
+    id = c(paste0(1:(nrow(
+      candy_2015
+    )), "_", 2015)),
+    country = as.character(NA),
+    gender = as.character(NA)
+  ) %>%
+  rename(
+    age = "How old are you?",
+    going_out = "Are you going actually going trick or treating yourself?",
+    "[JoyJoy (Mit Iodine!)]" = "[JoyJoy (Mit Iodine)]"
+  ) %>%
+  select(id, year, going_out, gender, age, country, c(3:95)) %>%
+  rename_all( ~ str_to_lower(.)) %>%
+  pivot_longer(
+    cols = c("[butterfinger]":"[york peppermint patties]"),
+    names_to = "candy",
+    values_to = "rating"
+  ) %>%
+  mutate(candy = str_sub(candy, 2, -2))
 
 # candy 2016
-candy_2016_piv <- candy_2016 %>% 
-  select(c(2:106)) %>% 
-  clean_names() %>% 
+candy_2016_piv <- candy_2016 %>%
+  select(c(2:106)) %>%
   mutate(year = 2016,
-         id = c(paste0(1:(nrow(candy_2016)), "_", 2016))) %>% 
-  select(id, year, c(1:4, 6:105)) %>% 
-  rename(going_out = "are_you_going_actually_going_trick_or_treating_yourself",
-         gender = "your_gender",
-         age = "how_old_are_you",
-         country = "which_country_do_you_live_in",
-         box_o_raisins = "boxo_raisins") %>% 
-  rename_all(~ str_to_lower(.)) %>%
-  pivot_longer(cols = c("x100_grand_bar":"york_peppermint_patties"),
-               names_to = "candy",
-               values_to = "rating") 
+         id = c(paste0(1:(nrow(
+           candy_2016
+         )), "_", 2016))) %>%
+  select(id, year, c(1:4, 6:105)) %>%
+  rename(
+    going_out = "Are you going actually going trick or treating yourself?",
+    gender = "Your gender:",
+    age = "How old are you?",
+    country = "Which country do you live in?",
+    "[box’o’ raisins]" = "[Box'o'Raisins]"
+  ) %>%
+  rename_all( ~ str_to_lower(.)) %>%
+  pivot_longer(
+    cols = c("[100 grand bar]":"[york peppermint patties]"),
+    names_to = "candy",
+    values_to = "rating"
+  ) %>%
+  mutate(candy = str_sub(candy, 2, -2)) 
 
 # candy 2017 
-candy_2017_piv <- candy_2017 %>% 
-  select(c(2:109)) %>% 
-  clean_names() %>%
+candy_2017_piv <- candy_2017 %>%
+  select(c(2:109)) %>%
   mutate(year = 2017,
-         id = c(paste0(1:(nrow(candy_2017)), "_", 2017))) %>%
+         id = c(paste0(1:(nrow(
+           candy_2017
+         )), "_", 2017))) %>%
   select(id, year, c(1:4, 6:108)) %>%
-  rename_all(~ str_replace(., "^q[0-9]_", ""),
-             ~ str_to_lower(.)) %>%
-  rename("x100_grand_bar" = "100_grand_bar",
-         anonymous_brown_globs_that_come_in_black_and_orange_wrappers = 
-           "anonymous_brown_globs_that_come_in_black_and_orange_wrappers_a_k_a_mary_janes",
-         box_o_raisins = "boxo_raisins")   %>% 
-  pivot_longer(cols = c("x100_grand_bar":"york_peppermint_patties"),
-               names_to = "candy",
-               values_to = "rating") 
+  rename_all( ~ str_replace(., "^Q[0-9]: ", "")) %>%
+  rename_all( ~ str_to_lower(.)) %>%
+  rename(
+    "q6 | anonymous brown globs that come in black and orange wrappers" =
+      "q6 | anonymous brown globs that come in black and orange wrappers	(a.k.a. mary janes)",
+    "q6 | box’o’ raisins" = "q6 | box'o'raisins"
+  )   %>%
+  pivot_longer(
+    cols = c("q6 | 100 grand bar":"q6 | york peppermint patties"),
+    names_to = "candy",
+    values_to = "rating"
+  ) %>%
+  mutate(candy = str_sub(candy, 6)) %>%
+  clean_names()
 
 #country groups - all entries in the country column that can be reasonably 
 # be interpreted to be referring to the same country have been grouped

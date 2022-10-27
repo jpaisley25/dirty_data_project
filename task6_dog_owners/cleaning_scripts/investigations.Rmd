@@ -1,0 +1,241 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+
+```{r}
+raw_dog_data <- read_csv(here::here("raw_data/dog_survey.csv"))
+```
+
+
+
+
+
+
+```{r}
+head(raw_dog_data)
+```
+
+
+```{r}
+raw_dog_data %>% 
+  count(id)
+```
+
+
+Remove duplicates
+
+```{r}
+raw_dog_data %>% 
+  distinct()
+```
+
+
+```{r}
+raw_dog_data %>% 
+  distinct() %>% 
+  count(dog_age)
+
+raw_dog_data %>% 
+  distinct() %>% 
+  count(dog_gender)
+
+
+raw_dog_data %>% 
+  distinct() %>% 
+  count(dog_size)
+
+raw_dog_data %>% 
+  distinct() %>% 
+  count(...10)
+```
+
+remove multi dog entries
+
+```{r}
+raw_dog_data %>% 
+  distinct() %>% 
+  filter(!str_detect(dog_age, "and") & !str_detect(dog_age, ","))
+```
+
+fix amount spent on food set invalid entries to 0 and change to numeric
+
+```{r}
+raw_dog_data %>%
+  distinct() %>%
+  filter(!str_detect(dog_age, "and") &
+           !str_detect(dog_age, ",")) %>%
+  mutate(
+    amount_spent_on_dog_food = case_when(
+      !str_detect(amount_spent_on_dog_food, "^£[0-9]+") ~ "0",
+      TRUE ~ str_extract(amount_spent_on_dog_food, "[0-9]+\\.[0-9]+")
+    ),
+    amount_spent_on_dog_food = na_if(amount_spent_on_dog_food, "0"),
+    amount_spent_on_dog_food = as.numeric(amount_spent_on_dog_food)
+  ) 
+```
+gender_fixed
+
+```{r}
+raw_dog_data %>%
+  distinct() %>%
+  filter(!str_detect(dog_age, "and") &
+           !str_detect(dog_age, ",")) %>%
+  mutate(
+    amount_spent_on_dog_food = case_when(
+      !str_detect(amount_spent_on_dog_food, "^£[0-9]+") ~ "0",
+      TRUE ~ str_extract(amount_spent_on_dog_food, "[0-9]+\\.[0-9]+")
+    ),
+    amount_spent_on_dog_food = na_if(amount_spent_on_dog_food, "0"),
+    amount_spent_on_dog_food = as.numeric(amount_spent_on_dog_food)
+  ) %>%
+  mutate(
+    dog_gender = case_when(
+      str_detect(dog_gender, "(?i)^fem") ~ "F",
+      str_detect(dog_gender, "(?i)^male") ~ "M",
+      dog_gender == "F" | dog_gender == "M" ~ dog_gender,
+      TRUE ~ "unknown"
+    ),
+    dog_gender = na_if(dog_gender, "unknown")
+  ) %>%
+  count(dog_gender)
+
+
+
+```
+
+
+dog size fixed 
+
+
+```{r}
+raw_dog_data %>%
+  distinct() %>%
+  select(id:dog_age) %>% 
+  filter(!str_detect(dog_age, "and") &
+           !str_detect(dog_age, ",")) %>%
+  mutate(
+    amount_spent_on_dog_food = case_when(
+      !str_detect(amount_spent_on_dog_food, "^£[0-9]+") ~ "0",
+      TRUE ~ str_extract(amount_spent_on_dog_food, "[0-9]+\\.[0-9]+")
+    ),
+    amount_spent_on_dog_food = na_if(amount_spent_on_dog_food, "0"),
+    amount_spent_on_dog_food = as.numeric(amount_spent_on_dog_food)
+  ) %>%
+  mutate(
+    dog_gender = case_when(
+      str_detect(dog_gender, "(?i)^fem") ~ "F",
+      str_detect(dog_gender, "(?i)^male") ~ "M",
+      dog_gender == "F" | dog_gender == "M" ~ dog_gender,
+      TRUE ~ "unknown"
+    ),
+    dog_gender = na_if(dog_gender, "unknown")
+  ) %>%
+  mutate(dog_size = case_when(
+    str_detect(dog_size, "(?i)large") ~ "L",
+    str_detect(dog_size, "(?i)medium") ~ "M",
+    str_detect(dog_size, "(?i)small") ~ "S",
+    dog_size %in% c("XS", "S", "M", "L", "XL") ~ dog_size,
+    TRUE ~ "unknown"
+  ), 
+  dog_size = na_if(dog_size, "unknown"))
+
+```
+age fix
+
+```{r}
+raw_dog_data %>%
+  distinct() %>%
+  select(id:dog_age) %>% 
+  filter(!str_detect(dog_age, "and") &
+           !str_detect(dog_age, ",")) %>%
+  mutate(
+    amount_spent_on_dog_food = case_when(
+      !str_detect(amount_spent_on_dog_food, "^£[0-9]+") ~ "0",
+      TRUE ~ str_extract(amount_spent_on_dog_food, "[0-9]+\\.[0-9]+")
+    ),
+    amount_spent_on_dog_food = na_if(amount_spent_on_dog_food, "0"),
+    amount_spent_on_dog_food = as.numeric(amount_spent_on_dog_food)
+  ) %>%
+  mutate(
+    dog_gender = case_when(
+      str_detect(dog_gender, "(?i)^fem") ~ "F",
+      str_detect(dog_gender, "(?i)^male") ~ "M",
+      dog_gender == "F" | dog_gender == "M" ~ dog_gender,
+      TRUE ~ "unknown"
+    ),
+    dog_gender = na_if(dog_gender, "unknown")
+  ) %>%
+  mutate(dog_size = case_when(
+    str_detect(dog_size, "(?i)large") ~ "L",
+    str_detect(dog_size, "(?i)medium") ~ "M",
+    str_detect(dog_size, "(?i)small") ~ "S",
+    dog_size %in% c("XS", "S", "M", "L", "XL") ~ dog_size,
+    TRUE ~ "unknown"
+  ), 
+  dog_size = na_if(dog_size, "unknown")) %>% 
+  mutate(dog_age = case_when(
+    str_detect(dog_age, "[^0-9]") ~ "NA",
+    TRUE ~ dog_age
+  ),
+  dog_age = na_if(dog_age, "NA"),
+  dog_age = as.numeric(dog_age)) 
+
+```
+email fixed
+
+```{r}
+non_email <- raw_dog_data %>% 
+filter(!str_detect(email, "@")) %>% 
+  pull(email)
+
+
+
+raw_dog_data %>%
+  distinct() %>%
+  select(id:dog_age) %>%
+  filter(!str_detect(dog_age, "and") &
+           !str_detect(dog_age, ",")) %>%
+  mutate(
+    amount_spent_on_dog_food = case_when(
+      !str_detect(amount_spent_on_dog_food, "^£[0-9]+") ~ "0",
+      TRUE ~ str_extract(amount_spent_on_dog_food, "[0-9]+\\.[0-9]+")
+    ),
+    amount_spent_on_dog_food = na_if(amount_spent_on_dog_food, "0"),
+    amount_spent_on_dog_food = as.numeric(amount_spent_on_dog_food)
+  ) %>%
+  mutate(
+    dog_gender = case_when(
+      str_detect(dog_gender, "(?i)^fem") ~ "F",
+      str_detect(dog_gender, "(?i)^male") ~ "M",
+      dog_gender == "F" | dog_gender == "M" ~ dog_gender,
+      TRUE ~ "unknown"
+    ),
+    dog_gender = na_if(dog_gender, "unknown")
+  ) %>%
+  mutate(
+    dog_size = case_when(
+      str_detect(dog_size, "(?i)large") ~ "L",
+      str_detect(dog_size, "(?i)medium") ~ "M",
+      str_detect(dog_size, "(?i)small") ~ "S",
+      dog_size %in% c("XS", "S", "M", "L", "XL") ~ dog_size,
+      TRUE ~ "unknown"
+    ),
+    dog_size = na_if(dog_size, "unknown")
+  ) %>%
+  mutate(
+    dog_age = case_when(str_detect(dog_age, "[^0-9]") ~ "NA",
+                        TRUE ~ dog_age),
+    dog_age = na_if(dog_age, "NA"),
+    dog_age = as.numeric(dog_age)
+  ) %>%
+  mutate(email = na_if(email, non_email))
+```
+
+

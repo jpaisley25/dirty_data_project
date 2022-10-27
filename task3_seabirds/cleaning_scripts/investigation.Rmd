@@ -1,0 +1,90 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+```
+
+
+read data
+
+```{r}
+bird_data <- read_excel(path = here::here("raw_data/seabirds.xls"), sheet = 2)
+ship_data <- read_excel(path = here::here("raw_data/seabirds.xls"), sheet = 1)
+
+
+
+```
+
+What do I actually need?
+ 
+ * ids, name and count
+ 
+ 
+ 
+
+```{r}
+bird_data_selected <- bird_data %>% 
+  select(RECORD, `RECORD ID`, `Species common name (taxon [AGE / SEX / PLUMAGE PHASE])`, `Species abbreviation`, `Species  scientific name (taxon [AGE /SEX /  PLUMAGE PHASE])`, COUNT) %>% 
+  clean_names()
+```
+
+SUBAD, AD, (unidentified), DRK, LGHT, JUV, IMM, M, PL1, PL2, PL3, PL4, PL5, PL6, F, WHITE
+
+
+removal of codes from bird names
+
+```{r}
+bird_data_selected %>% 
+  mutate(species_abbreviation = str_extract(species_abbreviation, "^[A-Z]+"),
+         species_common_name_taxon_age_sex_plumage_phase = str_remove(species_common_name_taxon_age_sex_plumage_phase, "[A-Z0-9 ]+$"),
+         species_common_name_taxon_age_sex_plumage_phase = str_remove(species_common_name_taxon_age_sex_plumage_phase, "(?i)\\(unidentified\\)+$"),
+         species_scientific_name_taxon_age_sex_plumage_phase = str_remove(species_scientific_name_taxon_age_sex_plumage_phase, "[A-Z0-9 ]+$")) %>% 
+  count(species_scientific_name_taxon_age_sex_plumage_phase)
+
+bird_data_selected %>% 
+  count(species_scientific_name_taxon_age_sex_plumage_phase)
+```
+
+
+```{r}
+bird_data_clean <- bird_data_selected %>% 
+  mutate(species_abbreviation = str_extract(species_abbreviation, "^[A-Z]+"),
+         species_common_name_taxon_age_sex_plumage_phase = str_remove(species_common_name_taxon_age_sex_plumage_phase, "[A-Z0-9 ]+$"),
+         species_common_name_taxon_age_sex_plumage_phase = str_remove(species_common_name_taxon_age_sex_plumage_phase, "(?i)\\(unidentified\\)+$"),
+         species_scientific_name_taxon_age_sex_plumage_phase = str_remove(species_scientific_name_taxon_age_sex_plumage_phase, "[A-Z0-9 ]+$")) %>% 
+  rename(species_common_name = "species_common_name_taxon_age_sex_plumage_phase",
+         species_scientific_name = "species_scientific_name_taxon_age_sex_plumage_phase")
+
+```
+
+
+
+
+
+
+
+```{r}
+ship_data_clean <- ship_data %>% 
+  select(`RECORD ID`, LAT) %>% 
+  clean_names()
+```
+
+
+join them
+
+```{r}
+bird_data_clean %>% 
+  left_join(ship_data_clean, by = c("record_id"))
+
+?left_join
+```
+
+
+
+
+

@@ -115,7 +115,7 @@ usa_group <- c("usa", "us", "united states of america", "united states",
                "i pretend to be from canada, but i am really from the united states.", 
                "united stated", "ahem....amerca", "new jersey", "united ststes", 
                "united statss", "murrika", "usaa", "alaska", "u s a", 
-               "united statea", "usa usa usa!!!!", "united states of america")
+               "united statea", "usa usa usa!!!!", "united states of america", "united  states of america")
 uk_group <- c("uk", "england", "united kingdom", "united kindom", "u.k.", 
               "scotland")
 spain_group <- c("españa", "spain")

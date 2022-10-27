@@ -293,8 +293,32 @@ bind_rows(candy_2015_piv, candy_2016_piv, candy_2017_piv) %>%
     country = na_if(country, "unknown")
   ) %>%  
   mutate(
-    age = case_when(str_detect(age, "[!A-z\\+\\-\\>\\<\\?]") ~ "0",
-                    TRUE ~ age))%>% 
+    age = case_when(str_detect(age, "[^0-9\\.]") ~ "0",
+                    TRUE ~ age),
+    age = round(as.numeric(age))
+  )%>% 
+  count(age)
+
+bind_rows(candy_2015_piv, candy_2016_piv, candy_2017_piv) %>%
+  mutate(
+    country = tolower(country),
+    country =
+      case_when(
+        country %in% usa_group ~ "usa",
+        country %in% uk_group ~ "uk",
+        country %in% spain_group ~ "spain",
+        country %in% south_korea_group ~ "south korea",
+        country %in% netherlands_group ~ "netherlands",
+        country %in% canada_group ~ "canada",
+        country %in% other_valid_countries ~ country,
+        TRUE ~ "unknown"
+      ),
+    country = na_if(country, "unknown")
+  ) %>%  
+  mutate(
+    age = case_when(str_detect(age, "[^0-9\\.]") ~ "0",
+                    TRUE ~ age)
+  )%>% 
   count(age)
 
 bind_rows(candy_2015_piv, candy_2016_piv, candy_2017_piv) %>%

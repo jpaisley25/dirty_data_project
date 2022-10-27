@@ -5,6 +5,7 @@ output: html_notebook
 
 ```{r}
 library(tidyverse)
+source(here::here("analysis_and_documentation/functions_task4.R"))
 ```
 
 #load data
@@ -31,39 +32,29 @@ candy_data %>%
 candy_data %>% 
   drop_na(age) %>% 
   filter(going_out == "Yes") %>% 
-  group_by(id) %>% 
-  summarise(avg_age = mean(age)) %>% 
-  summarise(avg_age = mean(avg_age))
+  find_the_mean_age()
 
 #imputing with mean
 mean_age_overall <- candy_data %>% 
   drop_na(age) %>% 
-  group_by(id) %>% 
-  summarise(avg_age = mean(age)) %>% 
-  summarise(avg_age = mean(avg_age)) %>% 
+  find_the_mean_age() %>% 
   pull(avg_age)  
   
 candy_data %>% 
   mutate(age = coalesce(age, mean_age_overall)) %>% 
   filter(going_out == "Yes") %>% 
-  group_by(id) %>% 
-  summarise(avg_age = mean(age)) %>% 
-  summarise(avg_age = mean(avg_age))
+  find_the_mean_age()
 
 #imputing with median
 median_age_overall <- candy_data %>%
   drop_na(age) %>% 
-  group_by(id) %>%
-  summarise(med_age = median(age)) %>% 
-  summarise(med_age = median(med_age)) %>% 
+  find_the_median_age() %>% 
   pull(med_age)
 
 candy_data %>% 
   mutate(age = coalesce(age, median_age_overall)) %>% 
   filter(going_out == "Yes") %>% 
-  group_by(id) %>% 
-  summarise(avg_age = mean(age)) %>% 
-  summarise(avg_age = mean(avg_age))
+  find_the_mean_age()
 
 ```
 
@@ -72,33 +63,25 @@ candy_data %>%
 ```{r}
 
 #dropping nas
+#dropping nas
 candy_data %>% 
   drop_na(age) %>% 
   filter(going_out == "No") %>% 
-  group_by(id) %>% 
-  summarise(avg_age = mean(age)) %>% 
-  summarise(avg_age = mean(avg_age))
+  find_the_mean_age()
 
 #imputing with mean
   
 candy_data %>% 
   mutate(age = coalesce(age, mean_age_overall)) %>% 
   filter(going_out == "No") %>% 
-  group_by(id) %>% 
-  summarise(avg_age = mean(age)) %>% 
-  summarise(avg_age = mean(avg_age))
+  find_the_mean_age()
 
 #imputing with median
 
 candy_data %>% 
   mutate(age = coalesce(age, median_age_overall)) %>% 
   filter(going_out == "No") %>% 
-  group_by(id) %>% 
-  summarise(avg_age = mean(age)) %>% 
-  summarise(avg_age = mean(avg_age))
-
-
-  
+  find_the_mean_age()
 
 ```
 

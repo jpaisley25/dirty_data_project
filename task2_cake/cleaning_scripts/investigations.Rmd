@@ -1,0 +1,49 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(stringr)
+```
+
+```{r}
+raw_cake_data <- read_csv(here::here("raw_data/cake-ingredients-1961.csv"))
+cake_code <-  read_csv(here::here("raw_data/cake_ingredient_code.csv"))
+```
+
+
+```{r}
+ingredients_and_measurements <- cake_code %>% 
+  unite("i_and_m", ingredient:measure, sep = ",") %>% 
+  pull(i_and_m)
+  
+
+
+```
+
+
+```{r}
+raw_cake_data %>%
+  rename_at(vars(AE:ZH), ~ ingredients_and_measurements) %>%
+  pivot_longer(cols = 2:35,
+               names_to = "temp",
+               values_to = "amount") %>%
+  separate(
+    col = "temp",
+    into = c("ingredient", "measure"),
+    sep = ","
+  ) %>%
+  mutate(
+    ingredient = recode(ingredient, "Sour cream cup" = "Sour cream"),
+    measure = recode(measure, "NA" = "cup")
+  ) %>% 
+  clean_names()
+
+
+
+
+```
+

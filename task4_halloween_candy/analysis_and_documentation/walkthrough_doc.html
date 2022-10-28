@@ -2822,29 +2822,18 @@ they weren’t present in the original data.</li>
 <li>Candy column mutated to remove brackets at beginning and end.</li>
 </ul>
 <p>A similar process was followed for the 2016 and 2017 data</p>
-<pre class="r"><code>candy_2015_piv &lt;- candy_2015 %&gt;%
-  select(c(2:96)) %&gt;%
-  mutate(
-    year = 2015,
-    id = c(paste0(1:(nrow(
-      candy_2015
-    )), &quot;_&quot;, 2015)),
-    country = as.character(NA),
-    gender = as.character(NA)
-  ) %&gt;%
+<pre class="r"><code>candy_2015 &lt;- candy_2015 %&gt;%
+  add_column(gender = as.character(NA), 
+             country = as.character(NA),
+             state = as.character(NA),
+             .after = 2) %&gt;% 
   rename(
     age = &quot;How old are you?&quot;,
     going_out = &quot;Are you going actually going trick or treating yourself?&quot;,
     &quot;[JoyJoy (Mit Iodine!)]&quot; = &quot;[JoyJoy (Mit Iodine)]&quot;
-  ) %&gt;%
-  select(id, year, going_out, gender, age, country, c(3:95)) %&gt;%
-  rename_all( ~ str_to_lower(.)) %&gt;%
-  pivot_longer(
-    cols = c(&quot;[butterfinger]&quot;:&quot;[york peppermint patties]&quot;),
-    names_to = &quot;candy&quot;,
-    values_to = &quot;rating&quot;
-  ) %&gt;%
-  mutate(candy = str_sub(candy, 2, -2))</code></pre>
+  )
+candy_2015_piv &lt;- candy_2015 %&gt;%
+  tidy_candy(2015)</code></pre>
 <p>Output of the above code gives a really long table with 8 columns.
 Column names and number are consistent now across all three tables.</p>
 <pre class="r"><code>head(candy_2015_piv)</code></pre>

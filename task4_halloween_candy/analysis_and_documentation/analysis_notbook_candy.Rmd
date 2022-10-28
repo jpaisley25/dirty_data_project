@@ -127,9 +127,9 @@ candy_data %>%
   mutate(rating_points = case_when(rating == "JOY" ~ 1,
                                    rating == "MEH" ~ 0,
                                    TRUE ~ -1)) %>% 
-  group_by(candy) %>% 
+  group_by(gender, candy) %>% 
   summarise(score = sum(rating_points)) %>% 
-  slice_max(score, n = 3)
+  slice_max(score, n = 1)
 ```
 
 

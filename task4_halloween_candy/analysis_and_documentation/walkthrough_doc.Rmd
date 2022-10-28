@@ -330,7 +330,7 @@ candy_data %>%
 
 * drop the na ratings
 * create a new column with the points system
-* group by candy
+* group by gender and candy
 * the summaries sums the points for each candy and returns the total
 * slice off the top three and show
 
@@ -342,7 +342,7 @@ candy_data %>%
   mutate(rating_points = case_when(rating == "JOY" ~ 1,
                                    rating == "MEH" ~ 0,
                                    TRUE ~ -1)) %>% 
-  group_by(candy) %>% 
+  group_by(gender, candy) %>% 
   summarise(score = sum(rating_points)) %>% 
   slice_max(score, n = 3)
 ```

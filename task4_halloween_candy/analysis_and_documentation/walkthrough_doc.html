@@ -3083,7 +3083,7 @@ gender in the dataset?</li>
 <ul>
 <li>drop the na ratings</li>
 <li>create a new column with the points system</li>
-<li>group by candy</li>
+<li>group by gender and candy</li>
 <li>the summaries sums the points for each candy and returns the
 total</li>
 <li>slice off the top three and show</li>
@@ -3097,12 +3097,14 @@ total</li>
   mutate(rating_points = case_when(rating == &quot;JOY&quot; ~ 1,
                                    rating == &quot;MEH&quot; ~ 0,
                                    TRUE ~ -1)) %&gt;% 
-  group_by(candy) %&gt;% 
+  group_by(gender, candy) %&gt;% 
   summarise(score = sum(rating_points)) %&gt;% 
   slice_max(score, n = 3)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;gender&#39;. You can override using the
+## `.groups` argument.</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["candy"],"name":[1],"type":["chr"],"align":["left"]},{"label":["score"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"any full-sized candy bar","2":"7182"},{"1":"reese’s peanut butter cups","2":"6684"},{"1":"kit kat","2":"6655"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["gender"],"name":[1],"type":["chr"],"align":["left"]},{"label":["candy"],"name":[2],"type":["chr"],"align":["left"]},{"label":["score"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Female","2":"any full-sized candy bar","3":"875"},{"1":"Female","2":"cash, or other forms of legal tender","3":"841"},{"1":"Female","2":"reese’s peanut butter cups","3":"768"},{"1":"I'd rather not say","2":"any full-sized candy bar","3":"68"},{"1":"I'd rather not say","2":"cash, or other forms of legal tender","3":"66"},{"1":"I'd rather not say","2":"kit kat","3":"62"},{"1":"Male","2":"any full-sized candy bar","3":"1584"},{"1":"Male","2":"reese’s peanut butter cups","3":"1443"},{"1":"Male","2":"kit kat","3":"1439"},{"1":"Other","2":"any full-sized candy bar","3":"37"},{"1":"Other","2":"cash, or other forms of legal tender","3":"36"},{"1":"Other","2":"twix","3":"32"},{"1":"NA","2":"any full-sized candy bar","3":"4618"},{"1":"NA","2":"reese’s peanut butter cups","3":"4391"},{"1":"NA","2":"kit kat","3":"4358"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </details>

@@ -42,3 +42,5 @@ clean_cake_data <- raw_cake_data %>%
 # write clean data
 
 write_csv(clean_cake_data, here::here("clean_data/cake_data_clean.csv"))
+
+?rename_at

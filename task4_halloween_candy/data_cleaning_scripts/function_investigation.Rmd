@@ -1,0 +1,47 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+candy_2015 <- candy_2015 %>% 
+  add_column(gender = as.character(NA), 
+             country = as.character(NA),
+             state = as.character(NA),
+             .after = 2) %>% 
+  rename(
+    age = "How old are you?",
+    going_out = "Are you going actually going trick or treating yourself?",
+    "[JoyJoy (Mit Iodine!)]" = "[JoyJoy (Mit Iodine)]"
+  )
+
+a <- candy_2015 %>%   
+  tidy_candy(2015)
+
+
+candy_2016 <- candy_2016 %>%  
+  rename(
+    going_out = "Are you going actually going trick or treating yourself?",
+    gender = "Your gender:",
+    age = "How old are you?",
+    country = "Which country do you live in?",
+    "[box’o’ raisins]" = "[Box'o'Raisins]"
+  )
+
+b <- candy_2016 %>%   
+  tidy_candy(2016)
+
+candy_2017 <- candy_2017 %>% 
+    rename(
+    "Q6 | Anonymous brown globs that come in black and orange wrappers" =
+      "Q6 | Anonymous brown globs that come in black and orange wrappers	(a.k.a. Mary Janes)",
+    "Q6 | Box’o’ Raisins" = "Q6 | Box'o'Raisins"
+  ) 
+
+c <- candy_2017 %>%   
+  tidy_candy(2017)
+
+```
+

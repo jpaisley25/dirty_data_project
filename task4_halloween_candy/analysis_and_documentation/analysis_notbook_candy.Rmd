@@ -11,7 +11,7 @@ source(here::here("analysis_and_documentation/functions_task4.R"))
 #load data
 
 ```{r}
-candy_data <- read_csv(here::here("clean_data/candys_data_clean.csv"))
+candy_data <- read_csv(here::here("clean_data/candys_data_clean_function.csv"))
 ```
 ```{r}
 

@@ -3,7 +3,7 @@
 Contained in this project:
 
 |Cleaning Folder|Analysis Folder|Task Title|
-|----------|-------------|
+|----------|-------------|-------------|
 |[Task 1](task_1_decathlon_data/data_cleaning_scripts)|[Task 1](task_1_decathlon_data/analysis_scripts)|Decathalon Results |
 |[Task 2](task_2_cake/cleaning_scripts)|[Task 2](task_2_cake/analysis_scripts)|Cake Ingredients |
 |[Task 3](task_3_seabirds/cleaning_scripts)|[Task 3](task_3_seabirds/analysis_scripts)|Seabird Sightings |

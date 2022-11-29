@@ -4,10 +4,10 @@ Contained in this project:
 
 |Cleaning Folder|Analysis Folder|Task Title|
 |----------|-------------|-------------|
-|[Task 1](task1_decathlon_data/data_cleaning_script)|[Task 1](task1_decathlon_data/analysis_scripts)|Decathalon Results |
+|[Task 1](task1_decathlon_data/data_cleaning_scripts)|[Task 1](task1_decathlon_data/analysis_script)|Decathalon Results |
 |[Task 2](task2_cake/cleaning_scripts)|[Task 2](task2_cake/analysis_scripts)|Cake Ingredients |
 |[Task 3](task3_seabirds/cleaning_scripts)|[Task 3](task3_seabirds/analysis_scripts)|Seabird Sightings |
-|[Task 4](task4_halloween_candy/data_cleaning_scripts)|[Task 4](task4_halloween_candy/analysis_and_documaentation)|Halloween Candy Survey |
+|[Task 4](task4_halloween_candy/data_cleaning_scripts)|[Task 4](task4_halloween_candy/analysis_and_documentation)|Halloween Candy Survey |
 |[Task 5](task5_RWA/cleaning_scripts)|[Task 5](task5_RWA/analysis)|Right Wing Authoritarianism Survey|
 |[Task 6](task6_dog_owners/cleaning_scripts)|[Task 6](task6_dog_owners/analysis_scripts)|Dog Survey|
 

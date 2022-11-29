@@ -46,4 +46,4 @@ not need to be run but they are included for reference.
 |Task 3|Seabirds and Ships|https://www.tepapa.govt.nz/sites/default/files/asms_10min_seabird_counts_final.xls/|
 |Task 4|Candy Data Info|https://www.scq.ubc.ca/so-much-candy-data-seriously/|
 |Task 5|RWA Survey Data|https://openpsychometrics.org/_rawdata/|
-|Task 6|Dog Owner Survey|(https://github.com/jpaisley25/dirty_data_project/tree/main/task6_dog_owners/raw_data)**|
+|Task 6|Dog Owner Survey|(https://github.com/jpaisley25/dirty_data_project/tree/main/task6_dog_owners/raw_data)|
